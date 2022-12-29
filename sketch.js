@@ -15,7 +15,7 @@ var startMillis;
 
 //------------PROJECT SPECIAL VARIABLES------------//
 let circleRadius, cellDimension;
-const NUMFRAMES = 120;
+const NUMFRAMES = 80;
 
 
 //------------CODE----------------+//
@@ -23,8 +23,7 @@ const NUMFRAMES = 120;
 function setup() {
     setupGrid(1);
     createCanvas(g, g);
-
-    lineWidth = c/5;
+    circleRadius = q;
     cellDimension =  c/5;
 }
 
@@ -42,8 +41,8 @@ function draw() {
     t = (frameCount % NUMFRAMES) / NUMFRAMES;
 
     //draw the lines
-    drawLines();
-
+    drawCircles();
+    
     //----------CAPTURING EACH DRAW FRAME---------//
     if (captureRun) {
         captureFrame();
@@ -59,13 +58,19 @@ function setupGrid(m) {
 }
 
 //-------------PROJECT SPECIFIC FUNCTIONS---------------//
+
+//draw circles on a grid
+//animate using an offset on dy, radius and fillcolor
 function drawCircles() {
-    //draw circles on a grid
-    for (let i = 0; i < g / cellDimension; i++) {
-        for (let j = 0; j < g / cellDimension; j++) {
+    noStroke();
+    for (let i = 0; i <= g / cellDimension; i++) {
+        for (let j = 0; j <= g / cellDimension; j++) {
             const x = i * cellDimension;
             const y = j * cellDimension;
-            circle(x, y, periodicFunction(t - offset(x, y)));
+            const scale = map(dist(x,y,0,0),0,sqrt(2)*g,0,1);
+            const dy = map(periodicFunction(t - offset(x, y)),-1,1,-.9*cellDimension,.9*cellDimension)*pow(scale,3);
+            fill(fillColor(x,y))
+            circle(x, y + dy, map(periodicFunction(t-offset(x,y)),-1,1,circleRadius,circleRadius/2));
         }
     }
 }
@@ -89,18 +94,17 @@ function drawLines() {
     }
 }
 
-function strokeColor(x,y) {
+function fillColor(x,y) {
     const from = color("#048ABF");
     const to = color("#FFFFFF");
-    // const amt = dist(x,y,0,0)/(g*sqrt(2));
-    const amt = .5*pow(x/g,2) + .5*pow(y/g,2);
+    const amt = pow(dist(x,y,0,0)/(g*sqrt(2)),1.5);
     return lerpColor(from,to,amt);
 }
 
 
 //must have a period of 1
 function periodicFunction(p) {
-    return sin(TWO_PI * p)
+    return sin(TWO_PI * p);
 }
 
 //offset of the animation, function of x,y coordinates in space
