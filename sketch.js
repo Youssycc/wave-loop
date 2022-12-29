@@ -126,19 +126,18 @@ function setCapture() {
         capturer.start();
     }
 
-    // if (startMillis == null) {
-    //     startMillis = millis();
-    // }
+    if (frameCount == duration) {
+        noLoop()
+    }
 
-    // elapsed = millis() - startMillis;
-    // let t = map(elapsed, 0, duration, 0, 1);
+
 }
 
 function captureFrame() {
     console.log('capturing frame ' + frameCount);
     capturer.capture(document.getElementById('defaultCanvas0'));
+
     if (frameCount > duration) {
-        noLoop();
         console.log('finished recording.');
         capturer.stop();
         capturer.save();
