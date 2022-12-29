@@ -24,8 +24,8 @@ function setup() {
     setupGrid(1);
     createCanvas(g, g);
 
-    circleRadius = q;
-    cellDimension = 2*q;
+    lineWidth = q;
+    cellDimension = 2 * q;
 }
 
 function draw() {
@@ -39,12 +39,12 @@ function draw() {
     background(51);
 
     //compute t
-    t = (frameCount % NUMFRAMES)/NUMFRAMES;
+    t = (frameCount % NUMFRAMES) / NUMFRAMES;
 
 
-    noStroke();
-    fill(255);
-    drawCircles();  
+
+
+    drawLines();
 
     //----------CAPTURING EACH DRAW FRAME---------//
     if (captureRun) {
@@ -65,21 +65,39 @@ function drawCircles() {
     //draw circles on a grid
     for (let i = 0; i < g / cellDimension; i++) {
         for (let j = 0; j < g / cellDimension; j++) {
-            const x = i*cellDimension;
-            const y = j*cellDimension;
-            circle(x,y,periodicFunction(t-offset(x,y)));
+            const x = i * cellDimension;
+            const y = j * cellDimension;
+            circle(x, y, periodicFunction(t - offset(x, y)));
         }
     }
 }
 
+function drawLines() {
+    stroke(255);
+    strokeWeight(q/5);
+    for (let i = 0; i <= g / cellDimension; i++) {
+        for (let j = 0; j <= g / cellDimension; j++) {
+            const x = i * cellDimension;
+            const y = j * cellDimension;
+            push();
+            translate(x,y);
+            rotate(periodicFunction(t-offset(x,y)));
+            line(-lineWidth/2,0,lineWidth/2,0); 
+            pop();
+
+        }
+    }
+}
+
+
 //must have a period of 1
 function periodicFunction(p) {
-    return map(sin(TWO_PI*p),-1,1,q/2,q);
+    return sin(TWO_PI * p)
 }
 
 //offset of the animation, function of x,y coordinates in space
-function offset(x,y) {
-    return 0.01 * dist(x,y,width/2,height/2)
+function offset(x, y) {
+    return .005*(x+2*y);
 }
 
 
