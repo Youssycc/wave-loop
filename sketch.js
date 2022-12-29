@@ -15,7 +15,7 @@ var startMillis;
 
 //------------PROJECT SPECIAL VARIABLES------------//
 let circleRadius, cellDimension;
-const NUMFRAMES = 60;
+const NUMFRAMES = 120;
 
 
 //------------CODE----------------+//
@@ -24,8 +24,8 @@ function setup() {
     setupGrid(1);
     createCanvas(g, g);
 
-    lineWidth = q;
-    cellDimension = 2 * q;
+    lineWidth = c/5;
+    cellDimension =  c/5;
 }
 
 function draw() {
@@ -36,14 +36,12 @@ function draw() {
     }
 
     //----------DRAWING CODE GOES HERE---------//
-    background(51);
+    background("#048ABF");
 
     //compute t
     t = (frameCount % NUMFRAMES) / NUMFRAMES;
 
-
-
-
+    //draw the lines
     drawLines();
 
     //----------CAPTURING EACH DRAW FRAME---------//
@@ -73,20 +71,30 @@ function drawCircles() {
 }
 
 function drawLines() {
-    stroke(255);
-    strokeWeight(q/5);
     for (let i = 0; i <= g / cellDimension; i++) {
         for (let j = 0; j <= g / cellDimension; j++) {
             const x = i * cellDimension;
             const y = j * cellDimension;
             push();
-            translate(x,y);
-            rotate(periodicFunction(t-offset(x,y)));
-            line(-lineWidth/2,0,lineWidth/2,0); 
+            translate(x, y);
+            const p = periodicFunction(t - offset(x, y));
+            const weight = map(abs(p), 0, 1, 0, q/3);
+            rotate(p);
+            stroke(strokeColor(x,y));
+            strokeWeight(weight);
+            line(-lineWidth / 2, 0, lineWidth / 2, 0);
             pop();
 
         }
     }
+}
+
+function strokeColor(x,y) {
+    const from = color("#048ABF");
+    const to = color("#FFFFFF");
+    // const amt = dist(x,y,0,0)/(g*sqrt(2));
+    const amt = .5*pow(x/g,2) + .5*pow(y/g,2);
+    return lerpColor(from,to,amt);
 }
 
 
@@ -97,8 +105,9 @@ function periodicFunction(p) {
 
 //offset of the animation, function of x,y coordinates in space
 function offset(x, y) {
-    return .005*(x+2*y);
+    return .005 * (x + 2*y);
 }
+
 
 
 
