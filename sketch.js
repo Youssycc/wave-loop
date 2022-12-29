@@ -7,7 +7,7 @@ var q = 0;
 var v = 0;
 
 //CC
-const captureRun = false; //set to true to capture
+const captureRun = true; //set to true to capture
 const duration = 100; //duration of capture in frames
 const fps = 30;
 var capturer = new CCapture({ format: 'png', framerate: fps });
