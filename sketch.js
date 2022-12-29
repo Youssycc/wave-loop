@@ -14,7 +14,8 @@ var capturer = new CCapture({ format: 'png', framerate: fps });
 var startMillis;
 
 //------------PROJECT SPECIAL VARIABLES------------//
-
+let circleRadius, cellDimension;
+const NUMFRAMES = 60;
 
 
 //------------CODE----------------+//
@@ -22,6 +23,9 @@ var startMillis;
 function setup() {
     setupGrid(1);
     createCanvas(g, g);
+
+    circleRadius = q;
+    cellDimension = 2*q;
 }
 
 function draw() {
@@ -32,14 +36,22 @@ function draw() {
     }
 
     //----------DRAWING CODE GOES HERE---------//
+    background(51);
 
+    //compute t
+    t = (frameCount % NUMFRAMES)/NUMFRAMES;
+
+
+    noStroke();
+    fill(255);
+    drawCircles();  
 
     //----------CAPTURING EACH DRAW FRAME---------//
     if (captureRun) {
         captureFrame();
     }
 }
-}
+
 
 function setupGrid(m) {
     g = min(windowWidth, windowHeight) * m;
@@ -49,7 +61,26 @@ function setupGrid(m) {
 }
 
 //-------------PROJECT SPECIFIC FUNCTIONS---------------//
+function drawCircles() {
+    //draw circles on a grid
+    for (let i = 0; i < g / cellDimension; i++) {
+        for (let j = 0; j < g / cellDimension; j++) {
+            const x = i*cellDimension;
+            const y = j*cellDimension;
+            circle(x,y,periodicFunction(t-offset(x,y)));
+        }
+    }
+}
 
+//must have a period of 1
+function periodicFunction(p) {
+    return map(sin(TWO_PI*p),-1,1,q/2,q);
+}
+
+//offset of the animation, function of x,y coordinates in space
+function offset(x,y) {
+    return 0.01 * dist(x,y,width/2,height/2)
+}
 
 
 
@@ -81,14 +112,12 @@ function captureFrame() {
     capturer.capture(document.getElementById('defaultCanvas0'));
 }
 
-function keyPressed()
-{  
-  if (key == 's' || key == 'S')
-   {
-    setupGrid(5);
-    resizeCanvas(g,g);
-    saveCanvas('youssycc_' + seed, 'png');
-   }
+function keyPressed() {
+    if (key == 's' || key == 'S') {
+        setupGrid(5);
+        resizeCanvas(g, g);
+        saveCanvas('youssycc_' + seed, 'png');
+    }
 }
 
 
@@ -116,13 +145,13 @@ function drawFromPaperSegments(segments) {
     beginShape();
     vertex(segments[0].point.x, segments[0].point.y);
     for (let s = 1; s < segments.length; s++) {
-        bezierVertex(segments[s - 1].handleOut.x+segments[s-1].point.x, segments[s - 1].handleOut.y+segments[s-1].point.y,
-            segments[s].handleIn.x+segments[s].point.x, segments[s].handleIn.y+segments[s].point.y,
+        bezierVertex(segments[s - 1].handleOut.x + segments[s - 1].point.x, segments[s - 1].handleOut.y + segments[s - 1].point.y,
+            segments[s].handleIn.x + segments[s].point.x, segments[s].handleIn.y + segments[s].point.y,
             segments[s].point.x, segments[s].point.y);
 
     }
-    bezierVertex(segments[segments.length - 1].handleOut.x+segments[segments.length - 1].point.x, segments[segments.length - 1].handleOut.y+segments[segments.length - 1].point.y,
-        segments[0].handleIn.x+segments[0].point.x, segments[0].handleIn.y+segments[0].point.y,
+    bezierVertex(segments[segments.length - 1].handleOut.x + segments[segments.length - 1].point.x, segments[segments.length - 1].handleOut.y + segments[segments.length - 1].point.y,
+        segments[0].handleIn.x + segments[0].point.x, segments[0].handleIn.y + segments[0].point.y,
         segments[0].point.x, segments[0].point.y);
     endShape();
 }
