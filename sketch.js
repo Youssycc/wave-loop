@@ -8,14 +8,15 @@ var v = 0;
 
 //CC
 const captureRun = false; //set to true to capture
-const duration = 15000; //duration of capture
-const fps = 60;
+const duration = 100; //duration of capture in frames
+const fps = 30;
 var capturer = new CCapture({ format: 'png', framerate: fps });
 var startMillis;
 
 //------------PROJECT SPECIAL VARIABLES------------//
 let circleRadius, cellDimension;
-const NUMFRAMES = 80;
+const NUMFRAMES = 50;
+var t;
 
 
 //------------CODE----------------+//
@@ -23,13 +24,18 @@ const NUMFRAMES = 80;
 function setup() {
     setupGrid(1);
     createCanvas(g, g);
+    pixelDensity(4.0);
     circleRadius = q;
-    cellDimension =  c/5;
+    cellDimension = c / 5;
+    frameRate(30)
 }
 
 function draw() {
 
     //----------SETTING UP CAPTURE---------//
+    //compute t
+    t = (frameCount % NUMFRAMES) / (NUMFRAMES);
+
     if (captureRun) {
         setCapture();
     }
@@ -37,12 +43,10 @@ function draw() {
     //----------DRAWING CODE GOES HERE---------//
     background("#048ABF");
 
-    //compute t
-    t = (frameCount % NUMFRAMES) / NUMFRAMES;
 
     //draw the lines
     drawCircles();
-    
+
     //----------CAPTURING EACH DRAW FRAME---------//
     if (captureRun) {
         captureFrame();
@@ -67,10 +71,10 @@ function drawCircles() {
         for (let j = 0; j <= g / cellDimension; j++) {
             const x = i * cellDimension;
             const y = j * cellDimension;
-            const scale = map(dist(x,y,0,0),0,sqrt(2)*g,0,1);
-            const dy = map(periodicFunction(t - offset(x, y)),-1,1,-.9*cellDimension,.9*cellDimension)*pow(scale,3);
-            fill(fillColor(x,y))
-            circle(x, y + dy, map(periodicFunction(t-offset(x,y)),-1,1,circleRadius,circleRadius/2));
+            const scale = map(dist(x, y, 0, 0), 0, sqrt(2) * g, 0, 1);
+            const dy = map(periodicFunction(t - offset(x, y)), -1, 1, -.9 * cellDimension, .9 * cellDimension) * pow(scale, 3);
+            fill(fillColor(x, y))
+            circle(x, y + dy, map(periodicFunction(t - offset(x, y)), -1, 1, circleRadius, circleRadius / 2));
         }
     }
 }
@@ -83,9 +87,9 @@ function drawLines() {
             push();
             translate(x, y);
             const p = periodicFunction(t - offset(x, y));
-            const weight = map(abs(p), 0, 1, 0, q/3);
+            const weight = map(abs(p), 0, 1, 0, q / 3);
             rotate(p);
-            stroke(strokeColor(x,y));
+            stroke(strokeColor(x, y));
             strokeWeight(weight);
             line(-lineWidth / 2, 0, lineWidth / 2, 0);
             pop();
@@ -94,11 +98,11 @@ function drawLines() {
     }
 }
 
-function fillColor(x,y) {
+function fillColor(x, y) {
     const from = color("#048ABF");
     const to = color("#FFFFFF");
-    const amt = pow(dist(x,y,0,0)/(g*sqrt(2)),1.5);
-    return lerpColor(from,to,amt);
+    const amt = pow(dist(x, y, 0, 0) / (g * sqrt(2)), 1.5);
+    return lerpColor(from, to, amt);
 }
 
 
@@ -109,7 +113,7 @@ function periodicFunction(p) {
 
 //offset of the animation, function of x,y coordinates in space
 function offset(x, y) {
-    return .005 * (x + 2*y);
+    return .005 * (x + 2 * y);
 }
 
 
@@ -118,29 +122,28 @@ function offset(x, y) {
 
 //-------------ALL PROJECT FUNCTIONS---------------//
 function setCapture() {
-    if (frameCount === 1) {
+    if (frameCount === 0) {
         capturer.start();
     }
 
-    if (startMillis == null) {
-        startMillis = millis();
-    }
+    // if (startMillis == null) {
+    //     startMillis = millis();
+    // }
 
-    elapsed = millis() - startMillis;
-    let t = map(elapsed, 0, duration, 0, 1);
+    // elapsed = millis() - startMillis;
+    // let t = map(elapsed, 0, duration, 0, 1);
+}
 
-    if (t > 1) {
+function captureFrame() {
+    console.log('capturing frame ' + frameCount);
+    capturer.capture(document.getElementById('defaultCanvas0'));
+    if (frameCount > duration) {
         noLoop();
         console.log('finished recording.');
         capturer.stop();
         capturer.save();
         return;
     }
-}
-
-function captureFrame() {
-    console.log('capturing frame and elapsed ' + elapsed);
-    capturer.capture(document.getElementById('defaultCanvas0'));
 }
 
 function keyPressed() {
