@@ -23,7 +23,6 @@ const NUMFRAMES = 80;
 function setup() {
     setupGrid(1);
     createCanvas(g, g);
-
     circleRadius = q;
     cellDimension =  c/5;
 }
@@ -43,7 +42,7 @@ function draw() {
 
     //draw the lines
     drawCircles();
-
+    
     //----------CAPTURING EACH DRAW FRAME---------//
     if (captureRun) {
         captureFrame();
@@ -59,8 +58,10 @@ function setupGrid(m) {
 }
 
 //-------------PROJECT SPECIFIC FUNCTIONS---------------//
+
+//draw circles on a grid
+//animate using an offset on dy, radius and fillcolor
 function drawCircles() {
-    //draw circles on a grid
     noStroke();
     for (let i = 0; i <= g / cellDimension; i++) {
         for (let j = 0; j <= g / cellDimension; j++) {
@@ -97,7 +98,6 @@ function fillColor(x,y) {
     const from = color("#048ABF");
     const to = color("#FFFFFF");
     const amt = pow(dist(x,y,0,0)/(g*sqrt(2)),1.5);
-    // const amt = .5*pow(x/g,3) + .5*pow(y/g,3);
     return lerpColor(from,to,amt);
 }
 
