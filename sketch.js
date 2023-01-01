@@ -7,15 +7,14 @@ var q = 0;
 var v = 0;
 
 //CC
-const captureRun = true; //set to true to capture
+const captureRun = false; //set to true to capture
 const duration = 100; //duration of capture in frames
 const fps = 30;
 var capturer = new CCapture({ format: 'png', framerate: fps });
-var startMillis;
 
 //------------PROJECT SPECIAL VARIABLES------------//
 let circleRadius, cellDimension;
-const NUMFRAMES = 50;
+const loopDuration = 50; //duration of loop in frames
 var t;
 
 
@@ -24,17 +23,16 @@ var t;
 function setup() {
     setupGrid(1);
     createCanvas(g, g);
-    pixelDensity(4.0);
-    circleRadius = q;
-    cellDimension = c / 5;
+    circleRadius = q; //radius of the circles
+    cellDimension = c / 5; //dimension of the cells of the grid on which circles are positionned
     frameRate(30)
 }
 
 function draw() {
 
     //----------SETTING UP CAPTURE---------//
-    //compute t
-    t = (frameCount % NUMFRAMES) / (NUMFRAMES);
+    //compute t, the progress through the animation loop
+    t = (frameCount % loopDuration) / (loopDuration);
 
     if (captureRun) {
         setCapture();
@@ -42,9 +40,7 @@ function draw() {
 
     //----------DRAWING CODE GOES HERE---------//
     background("#048ABF");
-
-
-    //draw the lines
+    //draw the circles
     drawCircles();
 
     //----------CAPTURING EACH DRAW FRAME---------//
@@ -69,31 +65,23 @@ function drawCircles() {
     noStroke();
     for (let i = 0; i <= g / cellDimension; i++) {
         for (let j = 0; j <= g / cellDimension; j++) {
-            const x = i * cellDimension;
-            const y = j * cellDimension;
+            const x = i * cellDimension; //x position of circle
+            const y = j * cellDimension; //y position of circle
+            
+            //compute the scale of the displacement of each circle on the y axis
+            //the displacement gets bigger when the circle is the furthest away from the top-left corner
             const scale = map(dist(x, y, 0, 0), 0, sqrt(2) * g, 0, 1);
+
+            //compute the final displacement using the periodicFunction for looping
             const dy = map(periodicFunction(t - offset(x, y)), -1, 1, -.9 * cellDimension, .9 * cellDimension) * pow(scale, 3);
+
+            //drawing the circle
+            // the radius size also evolves just proportionnally with the displacement dy
+            const radius = map(periodicFunction(t - offset(x, y)), -1, 1, circleRadius, circleRadius / 2)
+            
+            //the color gets whiter as dots are further away from the top-left corner
             fill(fillColor(x, y))
-            circle(x, y + dy, map(periodicFunction(t - offset(x, y)), -1, 1, circleRadius, circleRadius / 2));
-        }
-    }
-}
-
-function drawLines() {
-    for (let i = 0; i <= g / cellDimension; i++) {
-        for (let j = 0; j <= g / cellDimension; j++) {
-            const x = i * cellDimension;
-            const y = j * cellDimension;
-            push();
-            translate(x, y);
-            const p = periodicFunction(t - offset(x, y));
-            const weight = map(abs(p), 0, 1, 0, q / 3);
-            rotate(p);
-            stroke(strokeColor(x, y));
-            strokeWeight(weight);
-            line(-lineWidth / 2, 0, lineWidth / 2, 0);
-            pop();
-
+            circle(x, y + dy, radius);
         }
     }
 }
@@ -122,27 +110,24 @@ function offset(x, y) {
 
 //-------------ALL PROJECT FUNCTIONS---------------//
 function setCapture() {
-    if (frameCount === 0) {
+    if (frameCount === 1) {
         capturer.start();
     }
 
-    if (frameCount == duration) {
-        noLoop()
+    if (frameCount == duration+2) {
+        noLoop();
+        console.log('finished recording.');
+        console.log(capturer)
+        capturer.stop();
+        capturer.save();
+        return;
     }
-
-
 }
 
 function captureFrame() {
     console.log('capturing frame ' + frameCount);
     capturer.capture(document.getElementById('defaultCanvas0'));
 
-    if (frameCount > duration) {
-        console.log('finished recording.');
-        capturer.stop();
-        capturer.save();
-        return;
-    }
 }
 
 function keyPressed() {
